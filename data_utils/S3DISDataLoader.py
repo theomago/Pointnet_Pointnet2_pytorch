@@ -93,22 +93,24 @@ class ScannetDatasetWholeScene():
         self.stride = stride
         self.scene_points_num = []
         assert split in ['train', 'test']
+        #file_list contains all the rooms that belong to the same area
         if self.split == 'train':
             self.file_list = [d for d in os.listdir(root) if d.find('Area_%d' % test_area) is -1]
         else:
             self.file_list = [d for d in os.listdir(root) if d.find('Area_%d' % test_area) is not -1]
+
         self.scene_points_list = []
         self.semantic_labels_list = []
         self.room_coord_min, self.room_coord_max = [], []
         for file in self.file_list:
             data = np.load(root + file)
-            points = data[:, :3]
-            self.scene_points_list.append(data[:, :6])
-            self.semantic_labels_list.append(data[:, 6])
+            points = data[:, :3]  #xyz
+            self.scene_points_list.append(data[:, :6]) #xyzrgb
+            self.semantic_labels_list.append(data[:, 6]) #label
             coord_min, coord_max = np.amin(points, axis=0)[:3], np.amax(points, axis=0)[:3]
             self.room_coord_min.append(coord_min), self.room_coord_max.append(coord_max)
         assert len(self.scene_points_list) == len(self.semantic_labels_list)
-
+        
         labelweights = np.zeros(13)
         for seg in self.semantic_labels_list:
             tmp, _ = np.histogram(seg, range(14))
