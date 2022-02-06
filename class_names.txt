@@ -1,0 +1,5 @@
+unlabeled
+ground
+vegetation
+building 
+water
