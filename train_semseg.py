@@ -18,7 +18,8 @@ ROOT_DIR = BASE_DIR
 sys.path.append(os.path.join(ROOT_DIR, 'models'))
 
 classes = [x.rstrip() for x in open('class_names.txt')]
-class2label = dict(zip(g_classes, g_indices))
+indices = [y.rstrip() for y in open('class_indices.txt')]
+class2label = dict(zip(classes, indices))
 seg_classes = class2label
 seg_label_to_cat = {}
 for i, cat in enumerate(seg_classes.keys()):
@@ -83,7 +84,7 @@ def main(args):
     log_string('PARAMETER ...')
     log_string(args)
 
-    root = 'data/'
+    root = 'data/PointCloud/'
     NUM_CLASSES = 5
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size

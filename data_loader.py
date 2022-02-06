@@ -44,13 +44,13 @@ class DataLoader(Dataset):
         area_idxs = []
         for index in range(len(areas_split)):
             area_idxs.extend([index] * int(round(sample_prob[index] * num_iter)))
-        self.room_idxs = np.array(area_idxs)
-        print("Totally {} samples in {} set.".format(len(self.room_idxs), split))
+        self.area_idxs = np.array(area_idxs)
+        print("Totally {} samples in {} set.".format(len(self.area_idxs), split))
 
     def __getitem__(self, idx):
         area_idx = self.area_idxs[idx]
-        points = self.room_points[area_idx]  # N * 6
-        labels = self.room_labels[area_idx]  # N
+        points = self.area_points[area_idx]  # N * 6
+        labels = self.area_labels[area_idx]  # N
         N_points = points.shape[0]
 
         while (True):
@@ -84,4 +84,4 @@ class DataLoader(Dataset):
         return current_points, current_labels
 
     def __len__(self):
-        return len(self.room_idxs)
+        return len(self.area_idxs)
