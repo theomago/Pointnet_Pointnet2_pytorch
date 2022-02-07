@@ -21,23 +21,40 @@ class DataLoader(Dataset):
 
         self.area_points, self.area_labels = [], []
         self.area_coord_min, self.area_coord_max = [], []
+        self.labelweights = np.zeros(9)
         num_point_all = []
-        labelweights = np.zeros(5)
+        labelweights_init = np.zeros(9)
+        labelweights = np.zeros(9)
 
         for area_name in tqdm(areas_split, total=len(areas_split)):
             area_path = os.path.join(data_root, area_name)
             area_data = np.load(area_path)  # xyzrgbl, N*7
             points, labels = area_data[:, 0:6], area_data[:, 6]  # xyzrgb, N*6; l, N
-            tmp, _ = np.histogram(labels, range(6))
-            labelweights += tmp
+            tmp, _ = np.histogram(labels, range(10)) #11 IF WE HAVE ALSO WATER
+            print("TMP ", tmp)
+            labelweights_init += tmp
             coord_min, coord_max = np.amin(points, axis=0)[:3], np.amax(points, axis=0)[:3]
             self.area_points.append(points), self.area_labels.append(labels)
             self.area_coord_min.append(coord_min), self.area_coord_max.append(coord_max)
             num_point_all.append(labels.size)
 
+        print("Initially: ", labelweights_init)
+        print(np.sum(labelweights_init))
+        labelweights_init = labelweights_init.astype(np.float32)
         labelweights = labelweights.astype(np.float32)
-        labelweights = labelweights / np.sum(labelweights)
-        self.labelweights = np.power(np.amax(labelweights) / labelweights, 1 / 3.0)
+
+        for w in range (0, labelweights.shape[0]):
+          if labelweights_init[w] == 0:
+            labelweights[w] = labelweights_init[w]
+          else:
+            labelweights[w] = labelweights_init[w] / np.sum(labelweights_init)
+        # labelweights = labelweights[labelweights!=0] / np.sum(labelweights)
+        for x in range (0, labelweights.shape[0]):
+          if labelweights[x] == 0:
+            self.labelweights[x] = 0
+          else:
+            self.labelweights[x] = np.power(np.amax(labelweights) / labelweights[x], 1 / 3.0)
+        # self.labelweights = np.power(np.amax(labelweights) / labelweights, 1 / 3.0)
         print(self.labelweights)
         sample_prob = num_point_all / np.sum(num_point_all)
         num_iter = int(np.sum(num_point_all) * sample_rate / num_point)
