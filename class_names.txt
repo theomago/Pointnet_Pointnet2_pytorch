@@ -1,5 +1,10 @@
+nolabel
 unlabeled
 ground
 vegetation
-building 
+nolabel
+nolabel
+building
+nolabel
+nolabel
 water
