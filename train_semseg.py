@@ -84,8 +84,8 @@ def main(args):
     log_string('PARAMETER ...')
     log_string(args)
 
-    root = 'data/PointCloud/'
-    NUM_CLASSES = 5
+    root = 'data/PC/'
+    NUM_CLASSES = 9
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size
 
