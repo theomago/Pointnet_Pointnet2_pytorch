@@ -21,25 +21,22 @@ class DataLoader(Dataset):
 
         self.area_points, self.area_labels = [], []
         self.area_coord_min, self.area_coord_max = [], []
-        self.labelweights = np.zeros(9)
+        self.labelweights = np.zeros(10)
         num_point_all = []
-        labelweights_init = np.zeros(9)
-        labelweights = np.zeros(9)
+        labelweights_init = np.zeros(10)
+        labelweights = np.zeros(10)
 
         for area_name in tqdm(areas_split, total=len(areas_split)):
             area_path = os.path.join(data_root, area_name)
             area_data = np.load(area_path)  # xyzrgbl, N*7
             points, labels = area_data[:, 0:6], area_data[:, 6]  # xyzrgb, N*6; l, N
-            tmp, _ = np.histogram(labels, range(10)) #11 IF WE HAVE ALSO WATER
-            print("TMP ", tmp)
+            tmp, _ = np.histogram(labels, range(11)) #11 IF WE HAVE ALSO WATER
             labelweights_init += tmp
             coord_min, coord_max = np.amin(points, axis=0)[:3], np.amax(points, axis=0)[:3]
             self.area_points.append(points), self.area_labels.append(labels)
             self.area_coord_min.append(coord_min), self.area_coord_max.append(coord_max)
             num_point_all.append(labels.size)
 
-        print("Initially: ", labelweights_init)
-        print(np.sum(labelweights_init))
         labelweights_init = labelweights_init.astype(np.float32)
         labelweights = labelweights.astype(np.float32)
 
@@ -88,9 +85,9 @@ class DataLoader(Dataset):
         # normalize
         selected_points = points[selected_point_idxs, :]  # num_point * 6
         current_points = np.zeros((self.num_point, 9))  # num_point * 9
-        current_points[:, 6] = selected_points[:, 0] / self.area_coord_max[area_idx][0]
-        current_points[:, 7] = selected_points[:, 1] / self.area_coord_max[area_idx][1]
-        current_points[:, 8] = selected_points[:, 2] / self.area_coord_max[area_idx][2]
+        current_points[:, 6] = selected_points[:, 0] / self.room_coord_max[area_idx][0]
+        current_points[:, 7] = selected_points[:, 1] / self.room_coord_max[area_idx][1]
+        current_points[:, 8] = selected_points[:, 2] / self.room_coord_max[area_idx][2]
         selected_points[:, 0] = selected_points[:, 0] - center[0]
         selected_points[:, 1] = selected_points[:, 1] - center[1]
         selected_points[:, 3:6] /= 255.0
