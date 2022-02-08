@@ -85,7 +85,7 @@ def main(args):
     log_string(args)
 
     root = 'data/PC/'
-    NUM_CLASSES = 9
+    NUM_CLASSES = 10
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size
 
